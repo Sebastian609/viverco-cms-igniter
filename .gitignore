@@ -121,6 +121,6 @@ _modules/*
 
 # Visual Studio Code
 .vscode/
-
+/public/uploads/
 /results/
 /phpunit*.xml

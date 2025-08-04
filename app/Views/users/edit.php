@@ -3,7 +3,7 @@
 
 <h2 class="text-2xl font-semibold mb-6">Editar usuario</h2>
 
-<form method="POST" action="/users/update/<?= $user['id'] ?>" class="bg-white p-6 rounded shadow-md max-w-md mx-auto space-y-4">
+<form method="POST" action="/users/update/<?= $user['id'] ?>" class="bg-white p- rounded shadow-md max-w-md mx-auto space-y-4">
     <div>
         <label for="name" class="block text-sm font-medium text-gray-700">Nombre</label>
         <input
