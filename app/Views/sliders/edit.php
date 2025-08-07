@@ -28,22 +28,27 @@
             </div>
 
             <!-- Imagen -->
+            <!-- Imagen -->
             <div class="col-span-1 md:col-span-2">
                 <label for="img" class="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
-                <input type="file" name="img" id="img" @change="previewImage($event)" class="w-full border border-gray-300 p-3 rounded-lg bg-white file:mr-4 file:py-2 file:px-4
-                              file:rounded-lg file:border-0 file:text-sm file:font-semibold
-                              file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition duration-200">
+                <input type="file" id="img_input" accept="image/*" class="w-full border border-gray-300 p-3 rounded-lg bg-white file:mr-4 file:py-2 file:px-4
+               file:rounded-lg file:border-0 file:text-sm file:font-semibold
+               file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition duration-200">
 
-                <!-- Vista previa -->
-                <div class="mt-4 space-y-3" x-show="previewUrl || existingImage">
-                    <img :src="previewUrl || existingImage" alt="Vista previa"
-                        class="max-h-48 w-auto border border-gray-200 rounded-lg shadow-sm object-contain">
+                <!-- Imagen recortada -->
+                <div class="mt-4 space-y-3">
+                    <img id="cropper_preview" :src="existingImage"
+                        class="max-h-64 w-auto mx-auto border border-gray-200 rounded-lg shadow-sm object-contain">
                     <button type="button" @click="removeImage"
                         class="text-red-600 hover:text-red-800 underline text-sm font-medium transition duration-200">
                         Quitar imagen
                     </button>
                 </div>
+
+                <!-- Imagen en base64 -->
+                <input type="hidden" name="img" id="cropped_image_data">
             </div>
+
 
             <!-- Habilitar botón -->
             <div class="col-span-1 md:col-span-2 flex items-center space-x-2">
@@ -127,4 +132,46 @@
         }));
     });
 </script>
+
+<script>
+    let cropper;
+    const input = document.getElementById('img_input');
+    const preview = document.getElementById('cropper_preview');
+    const hiddenInput = document.getElementById('cropped_image_data');
+
+    input.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            preview.src = e.target.result;
+
+            if (cropper) cropper.destroy();
+
+            cropper = new Cropper(preview, {
+                aspectRatio: 1200 / 600,
+                viewMode: 1,
+                autoCropArea: 1,
+                responsive: true,
+                scalable: false,
+                zoomable: true,
+                movable: true,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Convertir recorte antes de enviar
+    document.querySelector('form').addEventListener('submit', function (e) {
+        if (cropper) {
+            const canvas = cropper.getCroppedCanvas({
+                width: 1200,
+                height: 600,
+            });
+            hiddenInput.value = canvas.toDataURL('image/jpeg');
+        }
+    });
+</script>
+
 <?= $this->endSection() ?>

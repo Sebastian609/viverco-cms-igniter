@@ -12,6 +12,9 @@ $routes->get('/slider/create', 'SliderController::create');
 $routes->post('/slider/store', 'SliderController::store');
 $routes->get('/slider/edit/(:num)', 'SliderController::edit/$1');
 $routes->post('/slider/update/(:num)', 'SliderController::update/$1');
+$routes->post('/slider/reorder', 'SliderController::reorder');
+$routes->get('/slider/delete/(:num)', 'SliderController::delete/$1');
+
 
 $routes->get('/users', 'UserController::index');
 $routes->get('/users/create', 'UserController::create');
