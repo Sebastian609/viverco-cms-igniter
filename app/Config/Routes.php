@@ -22,3 +22,13 @@ $routes->post('/users/store', 'UserController::store');
 $routes->get('/users/edit/(:num)', 'UserController::edit/$1');
 $routes->post('/users/update/(:num)', 'UserController::update/$1');
 $routes->get('/users/delete/(:num)', 'UserController::delete/$1');
+
+
+$routes->group('api', [
+    'namespace' => 'App\Controllers\Api',
+    'filter' => 'cors'
+], function($routes) {
+    $routes->resource('sliders', ['controller' => 'SliderController']);
+});
+
+
