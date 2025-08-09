@@ -15,13 +15,19 @@ $routes->post('/slider/update/(:num)', 'SliderController::update/$1');
 $routes->post('/slider/reorder', 'SliderController::reorder');
 $routes->get('/slider/delete/(:num)', 'SliderController::delete/$1');
 
-
 $routes->get('/users', 'UserController::index');
 $routes->get('/users/create', 'UserController::create');
 $routes->post('/users/store', 'UserController::store');
 $routes->get('/users/edit/(:num)', 'UserController::edit/$1');
 $routes->post('/users/update/(:num)', 'UserController::update/$1');
 $routes->get('/users/delete/(:num)', 'UserController::delete/$1');
+
+$routes->get('/post', 'PostController::index');
+$routes->get('/post/create', 'PostController::create');
+$routes->post('/post/store', 'PostController::store');
+$routes->get('/post/edit/(:num)', 'PostController::edit/$1');
+$routes->post('/post/update/(:num)', 'PostController::update/$1');
+$routes->get('/post/delete/(:num)', 'PostController::delete/$1');
 
 
 $routes->group('api', [
