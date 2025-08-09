@@ -4,18 +4,18 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PostModel extends Model
+class CollectionModel extends Model
 {
-    protected $table            = 'posts';
+    protected $table            = 'collections';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
     protected $allowedFields    = [
+        'post_id',
+        'key',
         'orden',
-        'title',
-        'copy',
         'status',
         'created_at',
         'updated_at',
