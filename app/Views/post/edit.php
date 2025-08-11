@@ -1,143 +1,142 @@
 <?= $this->extend('layouts/main') ?>
 <?= $this->section('content') ?>
-<div class="">
-    <div class="container mx-auto px-4">
-        <h1 class="text-3xl text-gray-800 mb-6 text-left">Editar post</h1>
 
-        <form x-data="postForm()" class="bg-white p-8 rounded-xl shadow-lg grid grid-cols-1 md:grid-cols-2 gap-6"
-            action="/post/update/<?= esc($post['id']) ?>" method="post" enctype="multipart/form-data">
-            <input type="hidden">
-            <?= csrf_field() ?>
+<div id="edit-post">
+    <h1 class=" text-gray-800 font-bold text-left mb-4">Editar post</h1>
+    <div class="w-full bg-white mx-auto grid grid-cols-1 md:grid-cols-2 p-8 gap-6" id="vue-section">
 
-            <!-- Texto principal -->
-            <div class="col-span-1 md:col-span-2">
-                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Título</label>
-                <input type="text" name="title" id="title" placeholder="Título"
-                    value="<?= esc($post['title'] ?? '') ?>"
-                    class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    required>
+        <div class="grid col-span-2">
+            <div>
+                <button @click="showModal = true" class="bg-blue-600 text-white px-4 py-2">
+                    Agregar item
+                </button>
             </div>
+        </div>
+        <?= $this->include('components/items/update-item') ?>
+        <?= $this->include('components/items/list-item') ?>
+    </div>
 
-            <!-- Texto secundario -->
-            <!-- Texto secundario -->
-            <div class="col-span-1 md:col-span-2">
-                <label for="copy" class="block text-sm font-medium text-gray-700 mb-1">Copy</label>
-                <textarea name="copy" id="copy" placeholder="Ingresar copy"
-                    class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"><?= esc($post['copy'] ?? '') ?></textarea>
-            </div>
-
-
-
-
-
-            <div class="col-span-1 md:col-span-2">
-                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Estado del post</label>
-                <select id="status" name="status"
-                    class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300">
-                    <option value="active" <?= ($post['status'] ?? '') === 'active' ? 'selected' : '' ?>>Activo</option>
-                    <option value="disabled" <?= ($post['status'] ?? '') === 'disabled' ? 'selected' : '' ?>>Desactivado
-                    </option>
-                    <option value="draft" <?= ($post['status'] ?? '') === 'draft' ? 'selected' : '' ?>>Borrador
-                    </option>
-                </select>
-            </div>
-
-
-
-            <!-- Botón enviar -->
-            <button type="submit"
-                class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg col-span-1 md:col-span-2
-                           shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-0.5">
-                actualizar post
+    <!-- Modal -->
+    <div v-show="showModal" style="display:none"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="bg-white w-full max-w-lg p-6 relative">
+            <button @click="showModal = false"
+                class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold">
+                &times;
             </button>
-        </form>
+            <?= $this->include('components/items/create-item') ?>
+        </div>
     </div>
 </div>
 
-<div class="container mt-8 mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
-    <!-- Bloque 1 -->
-    <div class="bg-white p-8 rounded-xl shadow-lg grid grid-cols-1 gap-6">
-        <div class="bg-slate-800 text-white p-4  col-span-2 rounded-lg mb-4 h-14">
-            <i class="fa-solid fa-list text-white"></i> Contenido del post
-        </div>
-        <div class="col-span-1 md:col-span-2">
-            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Tipo de visualizacion</label>
-            <select id="status" name="status"
-                class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300">
-                <option value="active" <?= ($post['status'] ?? '') === 'active' ? 'selected' : '' ?>>Activo</option>
-                <option value="disabled" <?= ($post['status'] ?? '') === 'disabled' ? 'selected' : '' ?>>Desactivado
-                </option>
-                <option value="draft" <?= ($post['status'] ?? '') === 'draft' ? 'selected' : '' ?>>Borrador
-                </option>
-            </select>
-        </div>
-    </div>
+<script type="module">
+    const { createApp } = Vue
+    const createPost = createApp({
+        data() {
+            return {
+                showModal: false,
 
+                // Datos del post
+                post: {
+                    id: <?= json_encode($post['id']) ?>,
+                    title: <?= json_encode($post['title'] ?? '') ?>,
+                    copy: <?= json_encode($post['copy'] ?? '') ?>,
+                    status: <?= json_encode($post['status'] ?? 'active') ?>
+                },
 
-    <!-- Bloque 2 -->
-    <form class="bg-white p-8 rounded-xl shadow-lg grid grid-cols-1 gap-6"
-        x-data="{ showButton2: <?= !empty($post['button']) ? 'true' : 'false' ?> }">
+                collection: {
+                    id: <?= json_encode($collection['id']) ?>
+                },
 
-        <div class="bg-slate-800 col-span-2 text-white p-4 rounded-lg">
-            <i class="fa-solid fa-plus text-white"></i> Agregar contenido
-        </div>
+                items: <?= json_encode($items) ?> || [],
 
-        <div class="col-span-1 md:col-span-2">
-            <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Título</label>
-            <input type="text" name="title" id="title" placeholder="Título"
-                class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required>
-        </div>
+                item: {
+                    title: '',
+                    copy: '',
+                    button: <?= json_encode($item['button'] ?? '') ?>,
+                    redirect: <?= json_encode($item['redirect'] ?? '') ?>,
+                    showButton: <?= !empty($item['button']) ? 'true' : 'false' ?>
+                }
+            }
+        },
 
-        <div class="col-span-1 md:col-span-2">
-            <label for="copy" class="block text-sm font-medium text-gray-700 mb-1">Copy</label>
-            <textarea name="copy" id="copy" placeholder="Ingresar copy"
-                class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-        </div>
+        mounted() {
+            const el = this.$refs.sortableList;
+            Sortable.create(el, {
+                animation: 150,
+                handle: '.fa-grip-vertical', // <-- handle para mover
+                ghostClass: 'bg-gray-100',
+                onEnd: (evt) => {
+                    const movedItem = this.items.splice(evt.oldIndex, 1)[0];
+                    this.items.splice(evt.newIndex, 0, movedItem);
+                    this.saveOrder(); // Guarda en backend
+                }
+            });
+        },
 
+        methods: {
+            saveOrder() {
+                const data = this.items.map((item, index) => ({
+                    id: item.id,
+                    orden: index + 1
+                }));
 
-        <!-- Checkbox -->
-        <div class="col-span-2 flex items-center space-x-2">
-            <input type="checkbox" id="enableButton2" x-model="showButton2"
-                class="form-checkbox h-5 w-5 text-green-600 rounded focus:ring-green-500">
-            <label for="enableButton2" class="text-base font-medium text-gray-700 cursor-pointer">
-                Habilitar botón
-            </label>
-        </div>
+                fetch('/item/reorder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.status === 'success') {
+                            console.log('Orden guardado');
+                        } else {
+                            Swal.fire('Error', 'No se pudo guardar el orden', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        Swal.fire('Error', 'Hubo un problema de conexión', 'error');
+                    });
+            },
+            confirmDelete(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "No podrás revertir esta acción",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/post/delete/' + id;
+                    }
+                });
+            },
 
-        <!-- Texto botón -->
-        <div x-show="showButton2" x-transition>
-            <label for="button_text2" class="block text-sm font-medium text-gray-700 mb-1">Texto botón</label>
-            <input type="text" name="button" id="button_text2" placeholder="Texto botón"
-                value="<?= esc($post['button'] ?? '') ?>" :required="showButton2" :disabled="!showButton2"
-                :class="{ 'bg-gray-100 text-gray-400 cursor-not-allowed': !showButton2 }"
-                class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300">
-        </div>
+            addItem() {
+                if (!this.item.title) {
+                    Swal.fire('Error', 'El título es obligatorio', 'error');
+                    return;
+                }
+                this.items.push({ ...this.item });
+                this.item = { title: '', copy: '', button: '', redirect: '', showButton: false };
+                this.showModal = false;
+            },
 
-
-
-        <!-- Redireccionar -->
-        <div x-show="showButton2" x-transition>
-            <label for="redirect_url2" class="block text-sm font-medium text-gray-700 mb-1">Redireccionar a...</label>
-            <input type="text" name="redirect" id="redirect_url2" placeholder="Redireccionar a..."
-                value="<?= esc($post['redirect'] ?? '') ?>" :required="showButton2" :disabled="!showButton2"
-                :class="{ 'bg-gray-100 text-gray-400 cursor-not-allowed': !showButton2 }"
-                class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300">
-        </div>
-
-        <button type="submit"
-            class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg col-span-1 md:col-span-2
-                           shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-0.5">
-            Agregar contenido
-        </button>
-    </form>
-</div>
-
-
-<!-- Alpine.js -->
-<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-
+            removeItem(index) {
+                this.items.splice(index, 1);
+            }
+        }
+    })
+    createPost.mount('#edit-post');
+</script>
 
 <?= $this->endSection() ?>

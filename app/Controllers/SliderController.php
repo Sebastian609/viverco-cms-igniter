@@ -14,8 +14,6 @@ class SliderController extends BaseController
         $this->sliderModel = new SliderModel();
     }
 
-
-
     public function index()
     {
         $sliders = $this->sliderModel->orderBy('orden', 'ASC')->findAll();

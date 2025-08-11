@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/main') ?>
 <?= $this->section('content') ?>
 <div class="min-h-screen p-4">
-    <div class="container">
+    <div class="container mx-auto px-4">
         <h1 class="text-3xl text-gray-800 text-left">Lista de Posts</h1>
 
         <div class="flex justify-end mb-6">
@@ -105,6 +105,7 @@
         }
     });
 </script>
+
 <script>
     function confirmDelete(id) {
         Swal.fire({

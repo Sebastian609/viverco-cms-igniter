@@ -16,6 +16,8 @@ class ItemModel extends Model
         'collection_id',
         'orden',
         'img',
+        'title',
+        'copy',
         'button',
         'redirect',
         'status',

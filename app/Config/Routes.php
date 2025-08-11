@@ -24,10 +24,20 @@ $routes->get('/users/delete/(:num)', 'UserController::delete/$1');
 
 $routes->get('/post', 'PostController::index');
 $routes->get('/post/create', 'PostController::create');
+
 $routes->post('/post/store', 'PostController::store');
 $routes->get('/post/edit/(:num)', 'PostController::edit/$1');
 $routes->post('/post/update/(:num)', 'PostController::update/$1');
 $routes->get('/post/delete/(:num)', 'PostController::delete/$1');
+
+
+$routes->get('/item', 'ItemController::index');
+$routes->post('/item/create/(:num)', 'ItemController::create/$1');
+$routes->post('/item/store', 'ItemController::store');
+$routes->get('/item/edit/(:num)', 'ItemController::edit/$1');
+$routes->post('/item/update/(:num)', 'ItemController::update/$1');
+$routes->post('/item/reorder', 'ItemController::reorder');
+$routes->get('/item/delete/(:num)', 'ItemController::delete/$1');
 
 
 $routes->group('api', [

@@ -1,21 +1,30 @@
 <?= $this->extend('layouts/main') ?>
 <?= $this->section('content') ?>
-<div class="min-h-screen p-4">
-    <div class="container">
-        <h1 class="text-3xl text-gray-800 text-left">Lista de Sliders</h1>
 
-        <div class="flex justify-end mb-6">
-            <a href="/slider/create" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg 
-                       shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-0.5">
-                Crear nuevo Slider
+<div class="container mx-auto w-full px-8">
+    <h1 class="text-xl font-bold text-gray-800 text-left mb-8">Lista de Sliders</h1>
+
+    <div class="bg-white">
+        <div class="flex justify-between  p-8">
+
+            <form class="flex justify-between">
+                <input type="text" class="bg-gray-100 px-6 py-3 border-2 " placeholder="Buscar Por texto principal" />
+                <button type="submit" class="bg-blue-600 text-white h-full aspect-square">
+                   <i class="fa-solid fa-magnifying-glass text-white"></i>
+                </button>
+            </form>
+ 
+            <a href="/slider/create" class="bg-blue-600 text-white px-6 py-3">
+                Nuevo Slider
             </a>
+
         </div>
 
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-white overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full table-auto">
                     <thead>
-                        <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
+                        <tr class="text-gray-700 border-y-2 uppercase text-sm leading-normal">
                             <th class="py-3 px-6 text-left font-semibold">#</th>
                             <th class="py-3 px-6 text-left font-semibold">Texto Principal</th>
                             <th class="py-3 px-6 text-center font-semibold">Imagen</th>
@@ -73,6 +82,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- Script para drag and drop -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>

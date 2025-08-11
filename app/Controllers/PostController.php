@@ -4,17 +4,20 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\CollectionModel;
+use App\Models\ItemModel;
 use App\Models\PostModel;
 
 class PostController extends BaseController
 {
     protected $postModel;
     protected $collectionModel;
+    protected $itemModel;
 
     public function __construct()
     {
         $this->postModel = new PostModel();
         $this->collectionModel = new CollectionModel();
+        $this->itemModel = new ItemModel();
     }
     public function index()
     {
@@ -97,7 +100,11 @@ class PostController extends BaseController
 
     public function edit($id)
     {
-        $post = $this->postModel->find($id);
+        $post = $this->postModel
+            ->select('id, title, copy, status') // solo columnas necesarias
+            ->where('id', $id)
+            ->first();
+
         if (!$post) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Post with ID $id not found.");
         }
@@ -106,7 +113,13 @@ class PostController extends BaseController
         if (!$collection) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound(message: "Colection not found.");
         }
-        return view('post/edit', ['post' => $post, 'collection' => $collection]);
+
+        $items = $this->itemModel
+            ->where('collection_id', $collection['id'])
+            ->orderBy('orden', 'ASC')
+            ->findAll() ?? [];
+
+        return view('post/edit', ['post' => $post, 'collection' => $collection, 'items' => $items]);
     }
 
 }
