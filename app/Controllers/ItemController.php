@@ -59,6 +59,53 @@ class ItemController extends BaseController
         return redirect()->back()->with('success', 'Item eliminado correctamente');
     }
 
+    public function update($id)
+    {
+        // Obtener solo el nombre de la imagen actual
+        $itemImg = $this->itemModel
+            ->select('img')
+            ->find($id);
+    
+        $rules = [
+            'title_item'    => 'required|string|min_length[2]|max_length[255]',
+            'copy_item'     => 'required|string|min_length[3]|max_length[1000]',
+            'button'        => 'permit_empty|string|min_length[2]|max_length[100]',
+            'redirect'      => 'permit_empty|string|min_length[2]|max_length[1000]',
+            'img_item'      => 'permit_empty|is_image[img_item]|mime_in[img_item,image/jpg,image/jpeg,image/png]|max_size[img_item,2048]'
+        ];
+    
+        if (! $this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+    
+        $data = [
+            'title'    => $this->request->getPost('title_item'),
+            'copy'     => $this->request->getPost('copy_item'),
+            'button'   => $this->request->getPost('button'),
+            'redirect' => $this->request->getPost('redirect'),
+        ];
+    
+        // Procesar imagen solo si el usuario subió una nueva
+        $imgFile = $this->request->getFile('img_item');
+        if ($imgFile && $imgFile->isValid() && !$imgFile->hasMoved()) {
+    
+            // Borrar imagen anterior si existe
+            if (!empty($itemImg['img']) && file_exists(FCPATH . $itemImg['img'])) {
+                unlink(FCPATH . $itemImg['img']);
+            }
+    
+            // Guardar la nueva imagen
+            $newName = $imgFile->getRandomName();
+            $imgFile->move(FCPATH . 'uploads/items', $newName);
+            $data['img'] = 'uploads/items/' . $newName;
+        }
+    
+        // Actualizar en la base de datos
+        $this->itemModel->update($id, $data);
+        return redirect()->to('/item/edit/' . $id)->with('success', 'Registro actualizado correctamente.');
+    }
+    
+
     public function edit($id)
     {
         $item = $this->itemModel->find($id);
@@ -71,17 +118,9 @@ class ItemController extends BaseController
     public function create($collectionId)
     {
         try {
-            // Debug: Log de datos recibidos
-            log_message('info', '=== CREATING ITEM ===');
-            log_message('info', 'Collection ID: ' . $collectionId);
-            log_message('info', 'POST data: ' . json_encode($this->request->getPost()));
-            log_message('info', 'Files: ' . json_encode($this->request->getFiles()));
-            log_message('info', 'Request method: ' . $this->request->getMethod());
-            
-            // Debug: Verificar si hay archivos
             $files = $this->request->getFiles();
             log_message('info', 'Archivos recibidos: ' . json_encode($files));
-            
+
             if (empty($files)) {
                 log_message('error', 'NO HAY ARCHIVOS EN LA REQUEST');
             } else {
@@ -89,7 +128,7 @@ class ItemController extends BaseController
                     log_message('info', 'Archivo ' . $key . ': ' . json_encode($file));
                 }
             }
-            
+
             // Calcular nuevo orden dentro de la colección específica
             $order = $this->itemModel
                 ->where('collection_id', $collectionId)
