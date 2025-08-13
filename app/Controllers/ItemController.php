@@ -55,8 +55,26 @@ class ItemController extends BaseController
         if ($item['img']) {
             unlink(FCPATH . $item['img']);
         }
+
+        $collection = $this->itemModel
+            ->select('collection_id')
+            ->where('id', $item['id'])
+            ->first();
+
+            
         $this->itemModel->delete($id);
-        return redirect()->back()->with('success', 'Item eliminado correctamente');
+
+
+        $collectionData = $this->collectionModel
+            ->select('post_id')
+            ->where('id', $collection['collection_id'])
+            ->first();
+
+        $postId = $collectionData['post_id'];
+
+        // Redirigir usando PRG
+        return redirect()->to('/post/edit/' . $postId)
+            ->with('success', 'Registro actualizado correctamente.');
     }
 
     public function update($id)
@@ -65,46 +83,62 @@ class ItemController extends BaseController
         $itemImg = $this->itemModel
             ->select('img')
             ->find($id);
-    
+
         $rules = [
-            'title_item'    => 'required|string|min_length[2]|max_length[255]',
-            'copy_item'     => 'required|string|min_length[3]|max_length[1000]',
-            'button'        => 'permit_empty|string|min_length[2]|max_length[100]',
-            'redirect'      => 'permit_empty|string|min_length[2]|max_length[1000]',
-            'img_item'      => 'permit_empty|is_image[img_item]|mime_in[img_item,image/jpg,image/jpeg,image/png]|max_size[img_item,2048]'
+            'title_item' => 'required|string|min_length[2]|max_length[255]',
+            'copy_item' => 'required|string|min_length[3]|max_length[1000]',
+            'button' => 'permit_empty|string|min_length[2]|max_length[100]',
+            'redirect' => 'permit_empty|string|min_length[2]|max_length[1000]',
+            'img_item' => 'permit_empty|is_image[img_item]|mime_in[img_item,image/jpg,image/jpeg,image/png]|max_size[img_item,2048]'
         ];
-    
-        if (! $this->validate($rules)) {
+
+        if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
-    
+
         $data = [
-            'title'    => $this->request->getPost('title_item'),
-            'copy'     => $this->request->getPost('copy_item'),
-            'button'   => $this->request->getPost('button'),
+            'title' => $this->request->getPost('title_item'),
+            'copy' => $this->request->getPost('copy_item'),
+            'button' => $this->request->getPost('button'),
             'redirect' => $this->request->getPost('redirect'),
         ];
-    
+
         // Procesar imagen solo si el usuario subió una nueva
         $imgFile = $this->request->getFile('img_item');
         if ($imgFile && $imgFile->isValid() && !$imgFile->hasMoved()) {
-    
+
             // Borrar imagen anterior si existe
             if (!empty($itemImg['img']) && file_exists(FCPATH . $itemImg['img'])) {
                 unlink(FCPATH . $itemImg['img']);
             }
-    
+
             // Guardar la nueva imagen
             $newName = $imgFile->getRandomName();
             $imgFile->move(FCPATH . 'uploads/items', $newName);
             $data['img'] = 'uploads/items/' . $newName;
         }
-    
+
         // Actualizar en la base de datos
+        $collection = $this->itemModel
+            ->select('collection_id')
+            ->where('id', $id)
+            ->first();
+
         $this->itemModel->update($id, $data);
-        return redirect()->to('/item/edit/' . $id)->with('success', 'Registro actualizado correctamente.');
+
+        $collectionData = $this->collectionModel
+            ->select('post_id')
+            ->where('id', $collection['collection_id'])
+            ->first();
+
+        $postId = $collectionData['post_id'];
+
+        // Redirigir usando PRG
+        return redirect()->to('/post/edit/' . $postId)
+            ->with('success', 'Registro actualizado correctamente.');
+
     }
-    
+
 
     public function edit($id)
     {
