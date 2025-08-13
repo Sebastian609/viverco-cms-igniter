@@ -41,10 +41,9 @@
                             <!-- Texto botón -->
                             <div id="button-text-container" style="display:none;">
                                 <label class="block text-sm text-gray-700 mb-1">Texto botón</label>
-                                <input type="text" name="button" id="button" placeholder="Texto botón"
-                                    class="w-full border border-gray-300 p-2 rounded-md bg-gray-100 text-gray-400 cursor-not-allowed"
-                                    value="<?= esc($item['copy']) ?>"
-                                    disabled>
+                                                            <input type="text" name="button" id="button" placeholder="Texto botón"
+                                class="w-full border border-gray-300 p-2 rounded-md bg-gray-100 text-gray-400 cursor-not-allowed"
+                                value="<?= esc($item['button']) ?>" disabled>
                             </div>
 
                             <!-- Redireccionar -->
@@ -52,8 +51,7 @@
                                 <label class="block text-sm text-gray-700 mb-1">Redireccionar a...</label>
                                 <input type="text" name="redirect" id="redirect" placeholder="Redireccionar a..."
                                     class="w-full border border-gray-300 p-2 rounded-md bg-gray-100 text-gray-400 cursor-not-allowed"
-                                    value=<?= esc($item['redirect']) ?>
-                                    disabled>
+                                    value="<?= esc($item['redirect']) ?>" disabled>
                             </div>
                         </div>
 
@@ -93,6 +91,12 @@
                             </label>
                         </div>
 
+                        <div id="imageUploaded">
+
+                            <img src="<?= "/" . esc($item['img']) ?>"
+                                class="w-full h-64 bg-gray-50 border-2 p-2 rounded-md object-contain" alt="">
+                        </div>
+
                         <!-- Área separada para el Cropper -->
                         <div id="cropper-container" class="hidden">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Editor de imagen</label>
@@ -122,12 +126,23 @@
 
     <script>
         $(document).ready(function () {
-
+            const imageUploaded = $("#imageUploaded");
+            const imgInput = $("#dropzone-container");
+            const img = "<?= esc($item['img']) ?>";
+            const imgExists = img.trim() !== "";
             const buttonText = "<?= esc($item['button']) ?>";
             let isChecked = buttonText.trim() !== "";
             const checkBox = $("#item-showButton");
             const redirectInput = $("#redirect-container");
             const textButtonInput = $("#button-text-container");
+
+            if (imgExists) {
+                imgInput.fadeOut(100);
+                imageUploaded.fadeIn(100);
+            } else {
+                imgInput.fadeIn(100);
+                imageUploaded.fadeOut(100);
+            };
 
             const toggleVisibility = (checked) => {
                 if (checked) {
@@ -156,8 +171,167 @@
                 toggleVisibility(e.target.checked);
             });
 
+            // Validación del formulario con jQuery Validation
+            $("#add-item-form").validate({
+                rules: {
+                    title_item: {
+                        required: true,
+                        minlength: 2,
+                        noWhitespace: true
+                    },
+                    copy_item: {
+                        required: true,
+                        minlength: 10,
+                        noWhitespace: true
+                    },
+                    button: {
+                        required: function() {
+                            return $("#item-showButton").is(":checked");
+                        },
+                        minlength: 2,
+                        noWhitespace: true
+                    },
+                    redirect: {
+                        required: function() {
+                            return $("#item-showButton").is(":checked");
+                        },
+                        url: true,
+                        noWhitespace: true
+                    },
+                    img_item: {
+                        required: function() {
+                            return !imgExists;
+                        },
+                        extension: "jpg|jpeg|png|gif"
+                    }
+                },
+                messages: {
+                    title_item: {
+                        required: "El título es obligatorio",
+                        minlength: "El título debe tener al menos 2 caracteres",
+                        noWhitespace: "El título no puede contener solo espacios en blanco"
+                    },
+                    copy_item: {
+                        required: "El copy es obligatorio",
+                        minlength: "El copy debe tener al menos 10 caracteres",
+                        noWhitespace: "El copy no puede contener solo espacios en blanco"
+                    },
+                    button: {
+                        required: "El texto del botón es obligatorio cuando está habilitado",
+                        minlength: "El texto del botón debe tener al menos 2 caracteres",
+                        noWhitespace: "El texto del botón no puede contener solo espacios en blanco"
+                    },
+                    redirect: {
+                        required: "La URL de redirección es obligatoria cuando está habilitado",
+                        url: "Por favor ingresa una URL válida",
+                        noWhitespace: "La URL no puede contener solo espacios en blanco"
+                    },
+                    img_item: {
+                        required: "La imagen es obligatoria",
+                        extension: "Solo se permiten archivos JPG, JPEG, PNG o GIF"
+                    }
+                },
+                errorElement: 'span',
+                errorClass: 'text-red-500 text-sm mt-1 block',
+                highlight: function(element) {
+                    $(element).addClass('border-red-500').removeClass('border-gray-300');
+                },
+                unhighlight: function(element) {
+                    $(element).removeClass('border-red-500').addClass('border-gray-300');
+                },
+                errorPlacement: function(error, element) {
+                    error.insertAfter(element);
+                },
+                submitHandler: function(form) {
+                    // Validación adicional antes del envío
+                    if ($("#item-showButton").is(":checked")) {
+                        const buttonText = $("#button").val().trim();
+                        const redirectUrl = $("#redirect").val().trim();
+                        
+                        if (!buttonText || !redirectUrl) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error de validación',
+                                text: 'Cuando el botón está habilitado, tanto el texto del botón como la URL de redirección son obligatorios'
+                            });
+                            return false;
+                        }
+                    }
+
+                    // Validación final de espacios en blanco
+                    const title = $("#item-title").val().trim();
+                    const copy = $("#item-copy").val().trim();
+                    
+                    if (!title || !copy) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de validación',
+                            text: 'El título y el copy son obligatorios y no pueden contener solo espacios en blanco'
+                        });
+                        return false;
+                    }
+                    
+                    // Si todo está bien, enviar el formulario
+                    return true;
+                }
+            });
+
+            // Actualizar validación cuando cambie el checkbox
+            checkBox.change(function() {
+                if ($(this).is(":checked")) {
+                    $("#button").rules("add", "required");
+                    $("#redirect").rules("add", "required");
+                } else {
+                    $("#button").rules("remove", "required");
+                    $("#redirect").rules("remove", "required");
+                }
+            });
+
+            // Función personalizada para validar que no haya solo espacios en blanco
+            $.validator.addMethod("noWhitespace", function(value, element) {
+                // Verificar que el valor no esté vacío y no contenga solo espacios
+                return this.optional(element) || (value.trim().length > 0);
+            }, "Este campo no puede contener solo espacios en blanco");
+
+            // Limpiar espacios en blanco al perder el foco
+            $("input[type='text'], textarea").on('blur', function() {
+                var $this = $(this);
+                var trimmedValue = $this.val().trim();
+                if ($this.val() !== trimmedValue) {
+                    $this.val(trimmedValue);
+                    // Trigger validation para mostrar errores si quedó vacío
+                    $this.trigger('input');
+                }
+            });
+
+            // Prevenir espacios al inicio mientras se escribe
+            $("input[type='text'], textarea").on('input', function() {
+                var $this = $(this);
+                var value = $this.val();
+                // Si el primer carácter es un espacio, eliminarlo
+                if (value.length > 0 && value.charAt(0) === ' ') {
+                    $this.val(value.substring(1));
+                }
+            });
         });
     </script>
 
+
+    <style>
+        .error {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+        
+        .border-red-500 {
+            border-color: #ef4444;
+        }
+        
+        .border-gray-300 {
+            border-color: #d1d5db;
+        }
+    </style>
 
     <?= $this->endSection() ?>

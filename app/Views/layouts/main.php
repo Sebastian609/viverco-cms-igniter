@@ -11,6 +11,9 @@
     <link href="https://unpkg.com/cropperjs/dist/cropper.min.css" rel="stylesheet" />
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- jQuery Validation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/additional-methods.min.js"></script>
     <!-- CropperJS -->
     <script src="https://unpkg.com/cropperjs/dist/cropper.min.js"></script>
 
