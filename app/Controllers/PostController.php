@@ -25,6 +25,17 @@ class PostController extends BaseController
         return view('post/index', ['posts' => $posts]);
     }
 
+     public function reorder()
+    {
+        $json = $this->request->getJSON(true); // Recibe array JSON con id y orden
+
+        foreach ($json as $item) {
+            $this->postModel->update($item['id'], [
+                'orden' => $item['orden'],
+            ]);
+        }
+        return $this->response->setJSON(['status' => 'success']);
+    }
     public function create()
     {
         // Obtener orden máximo de posts y calcular el nuevo

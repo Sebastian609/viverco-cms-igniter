@@ -29,7 +29,7 @@ $routes->post('/post/store', 'PostController::store');
 $routes->get('/post/edit/(:num)', 'PostController::edit/$1');
 $routes->post('/post/update/(:num)', 'PostController::update/$1');
 $routes->get('/post/delete/(:num)', 'PostController::delete/$1');
-
+$routes->post('/post/reorder', 'PostController::reorder');
 
 $routes->get('/item', 'ItemController::index');
 $routes->post('/item/create/(:num)', 'ItemController::create/$1');

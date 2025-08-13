@@ -2,141 +2,67 @@
 <?= $this->section('content') ?>
 
 <div id="edit-post">
-    <h1 class=" text-gray-800 font-bold text-left mb-4">Editar post</h1>
-    <div class="w-full bg-white mx-auto grid grid-cols-1 md:grid-cols-2 p-8 gap-6" id="vue-section">
+    <h1 class="text-gray-800 font-bold text-left mb-4 text-xl">Editar post</h1>
+    <div class="w-full bg-white border-2 rounded-md mx-auto grid grid-cols-1 md:grid-cols-2 p-8 gap-6" id="jquery-section">
 
         <div class="grid col-span-2">
-            <div>
-                <button @click="showModal = true" class="bg-blue-600 text-white px-4 py-2">
+            <div class="flex justify-between">
+                <button id="btn-show-modal" class="bg-blue-600 rounded-md text-white px-4 py-2">
                     Agregar item
                 </button>
+                <a href="/post" class="border-blue-600 text-blue-600 border-2 rounded-md px-4 py-2">
+                    regresar
+                </a>
             </div>
         </div>
         <?= $this->include('components/items/update-item') ?>
         <?= $this->include('components/items/list-item') ?>
     </div>
+</div>
 
-    <!-- Modal -->
-    <div v-show="showModal" style="display:none"
-        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-        <div class="bg-white w-full max-w-lg p-6 relative">
-            <button @click="showModal = false"
-                class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold">
-                &times;
+<!-- Modal -->
+<div id="modal" style="display:none"
+    class="fixed overflow-hidden inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-white w-full max-w-2xl rounded-md ">
+        <div class="flex justify-between items-center w-full p-8">
+
+            <div class="font-bold">
+                Agregar Item
+            </div>
+
+            <button id="btn-close-modal"
+                class="text-gray-500 w-5 h-5 p-2 flex justify-center items-center rounded-full bg-gray-200 ">
+                <i class="fa-solid fa-xmark text-xs text-light"></i>
             </button>
+        </div>
+        <div class="px-8 pb-8">
             <?= $this->include('components/items/create-item') ?>
         </div>
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
-<script type="module">
-    const { createApp } = Vue
-    const createPost = createApp({
-        data() {
-            return {
-                showModal: false,
+<script>
+$(document).ready(function() {
 
-                // Datos del post
-                post: {
-                    id: <?= json_encode($post['id']) ?>,
-                    title: <?= json_encode($post['title'] ?? '') ?>,
-                    copy: <?= json_encode($post['copy'] ?? '') ?>,
-                    status: <?= json_encode($post['status'] ?? 'active') ?>
-                },
+    // Variables
+    let items = <?= json_encode($items) ?> || [];
+    let $modal = $('#modal');
 
-                collection: {
-                    id: <?= json_encode($collection['id']) ?>
-                },
+    // Mostrar modal
+    $('#btn-show-modal').on('click', function() {
+        $modal.show();
+    });
 
-                items: <?= json_encode($items) ?> || [],
+    // Cerrar modal
+    $('#btn-close-modal').on('click', function() {
+        $modal.hide();
+        resetForm();
+    });
 
-                item: {
-                    title: '',
-                    copy: '',
-                    button: <?= json_encode($item['button'] ?? '') ?>,
-                    redirect: <?= json_encode($item['redirect'] ?? '') ?>,
-                    showButton: <?= !empty($item['button']) ? 'true' : 'false' ?>
-                }
-            }
-        },
-
-        mounted() {
-            const el = this.$refs.sortableList;
-            Sortable.create(el, {
-                animation: 150,
-                handle: '.fa-grip-vertical', // <-- handle para mover
-                ghostClass: 'bg-gray-100',
-                onEnd: (evt) => {
-                    const movedItem = this.items.splice(evt.oldIndex, 1)[0];
-                    this.items.splice(evt.newIndex, 0, movedItem);
-                    this.saveOrder(); // Guarda en backend
-                }
-            });
-        },
-
-        methods: {
-            saveOrder() {
-                const data = this.items.map((item, index) => ({
-                    id: item.id,
-                    orden: index + 1
-                }));
-
-                fetch('/item/reorder', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify(data)
-                })
-                    .then(res => res.json())
-                    .then(res => {
-                        if (res.status === 'success') {
-                            console.log('Orden guardado');
-                        } else {
-                            Swal.fire('Error', 'No se pudo guardar el orden', 'error');
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        Swal.fire('Error', 'Hubo un problema de conexión', 'error');
-                    });
-            },
-            confirmDelete(id) {
-                Swal.fire({
-                    title: '¿Estás seguro?',
-                    text: "No podrás revertir esta acción",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Sí, eliminar',
-                    cancelButtonText: 'Cancelar'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '/post/delete/' + id;
-                    }
-                });
-            },
-
-            addItem() {
-                if (!this.item.title) {
-                    Swal.fire('Error', 'El título es obligatorio', 'error');
-                    return;
-                }
-                this.items.push({ ...this.item });
-                this.item = { title: '', copy: '', button: '', redirect: '', showButton: false };
-                this.showModal = false;
-            },
-
-            removeItem(index) {
-                this.items.splice(index, 1);
-            }
-        }
-    })
-    createPost.mount('#edit-post');
+});
 </script>
 
 <?= $this->endSection() ?>
