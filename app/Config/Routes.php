@@ -39,11 +39,14 @@ $routes->post('/item/update/(:num)', 'ItemController::update/$1');
 $routes->post('/item/reorder', 'ItemController::reorder');
 $routes->get('/item/delete/(:num)', 'ItemController::delete/$1');
 
+$routes->post('/collection/updateKey', 'CollectionController::updateKey');
+
+
 
 $routes->group('api', [
     'namespace' => 'App\Controllers\Api',
     'filter' => 'cors'
-], function($routes) {
+], function ($routes) {
     $routes->resource('sliders', ['controller' => 'SliderController']);
 });
 

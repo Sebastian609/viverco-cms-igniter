@@ -120,7 +120,7 @@ class PostController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Post with ID $id not found.");
         }
 
-        $collection = $this->collectionModel->where('post_id', $id)->where('status', 'active')->first();
+        $collection = $this->collectionModel->select('id,key')->where('post_id', $id)->where('status', 'active')->first();
         if (!$collection) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound(message: "Colection not found.");
         }

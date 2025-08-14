@@ -146,8 +146,12 @@ class ItemController extends BaseController
         if (!$item) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Item not found.");
         }
-        return view('items/edit', ['item' => $item]);
+
+        return view('items/edit', [
+            'item' => $item,
+        ]);
     }
+
 
     public function create($collectionId)
     {
