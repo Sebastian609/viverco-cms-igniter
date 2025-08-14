@@ -2,7 +2,7 @@
     <form method="POST" action="/item/create/<?= esc($collection['id']) ?>" class="bg-white"
         enctype="multipart/form-data" id="add-item-form">
         <?= csrf_field() ?>
-        
+
         <!-- Campo oculto para collection_id -->
         <input type="hidden" name="collection_id" value="<?= esc($collection['id']) ?>">
 
@@ -106,6 +106,19 @@
     </form>
 </div>
 
+<!-- CDN para jQuery Validate -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/additional-methods.min.js"></script>
+
+<style>
+    /* Estilo para los mensajes de error de jQuery Validate */
+    .error {
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+    }
+</style>
+
 <script>
     $(function () {
         let cropper = null;
@@ -119,15 +132,14 @@
                 autoCropArea: 1
             });
         }
+
         $('#item-showButton').on('change', function () {
             if ($(this).is(':checked')) {
-                // Mostrar y habilitar campos
                 $('#button-text-container, #redirect-container').show();
                 $('#button-text-container input, #redirect-container input')
                     .prop('disabled', false)
                     .removeClass('bg-gray-100 text-gray-400 cursor-not-allowed');
             } else {
-                // Ocultar y deshabilitar campos
                 $('#button-text-container, #redirect-container').hide();
                 $('#button-text-container input, #redirect-container input')
                     .prop('disabled', true)
@@ -136,18 +148,16 @@
         });
 
         $('#btn-cancel-crop').on('click', function () {
-            // Destruir el cropper y volver a mostrar la dropzone
             if (cropper) {
                 cropper.destroy();
                 cropper = null;
             }
             $('#cropper-container').hide();
             $('#dropzone-container').show();
-
-            // Limpiar el input file
             $('#dropzone-file').val('');
+            // Limpiar el error de validación del dropzone si existe
+            $('#dropzone-file-error').remove();
         });
-
 
         $('#dropzone-file').on('change', function (e) {
             const file = e.target.files[0];
@@ -155,12 +165,9 @@
 
             const reader = new FileReader();
             reader.onload = function (event) {
-                // Ocultar dropzone y mostrar cropper
                 $('#dropzone-container').hide();
                 $('#cropper-container').show();
-
                 $('#cropper-image').attr('src', event.target.result);
-
                 const aspectRatio = parseFloat($('#aspectRatio').val());
                 createCropper(aspectRatio);
             };
@@ -174,73 +181,93 @@
         });
 
         $('#btn-cancel').on('click', function () {
-            // Reset form y vista
             $('#add-item-form')[0].reset();
             $('#cropper-container').hide();
             $('#dropzone-container').show();
             if (cropper) { cropper.destroy(); cropper = null; }
+            // Opcional: resetear la validación
+            $('#add-item-form').validate().resetForm();
         });
 
-        $('#add-item-form').on('submit', function (e) {
-            console.log('Formulario enviándose...');
-            console.log('Título:', $('#item-title').val());
-            console.log('Archivo:', $('#dropzone-file')[0].files[0]);
-            
-            // Validar campos requeridos
-            const title = $('#item-title').val().trim();
-            if (!title) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Campo requerido',
-                    text: 'El título es obligatorio'
-                });
-                return;
-            }
+        $.validator.addMethod("noSpace", function (value, element) {
+            return value.trim().length > 0;
+        }, "Este campo no puede estar vacío o solo con espacios.");
 
-            // Validar que haya imagen
-            const fileInput = $('#dropzone-file')[0];
-            if (fileInput.files.length === 0) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Imagen requerida',
-                    text: 'Debes seleccionar una imagen para el item'
-                });
-                return;
-            }
+        // Inicialización de jQuery Validate
+        $("#add-item-form").validate({
+            rules: {
+                title_item: {
+                    required: true,
+                    noSpace: true,
+                    minlength: 5,
+                    maxlength: 1000
+                },
+                img_item: {
+                    required: true,
+                    noSpace: true,
+                    minlength: 5,
+                    maxlength: 1000
+                },
+                button_item: {
+                    required: '#item-showButton:checked',
+                    noSpace: true,
+                    minlength: 5,
+                    maxlength: 1000
+                },
+                redirect_item: {
+                    required: '#item-showButton:checked',
+                    url: true,
+                    noSpace: true,
+                    minlength: 5,
+                    maxlength: 1000
+                },
+                copy_item: {
+                    required: true,
+                    noSpace: true,
+                    minlength: 5,
+                    maxlength: 1000
+                }
+            },
+            messages: {
+                title_item: {
+                    required: "El título es obligatorio.",
+                    minlength: "Debe tener al menos 5 caracteres.",
+                    maxlength: "No puede superar los 1000 caracteres."
+                },
+                img_item: {
+                    required: "Por favor, selecciona una imagen.",
+                    minlength: "Debe tener al menos 5 caracteres.",
+                    maxlength: "No puede superar los 1000 caracteres."
+                },
+                button_item: {
+                    required: "El texto del botón es obligatorio.",
+                    minlength: "Debe tener al menos 5 caracteres.",
+                    maxlength: "No puede superar los 1000 caracteres."
+                },
+                redirect_item: {
+                    required: "La URL de redirección es obligatoria.",
+                    url: "Por favor, introduce una URL válida (ej. https://ejemplo.com).",
+                    minlength: "Debe tener al menos 5 caracteres.",
+                    maxlength: "No puede superar los 1000 caracteres."
+                },
+                copy_item: {
+                    required: "El texto de copia es obligatorio.",
+                    minlength: "Debe tener al menos 5 caracteres.",
+                    maxlength: "No puede superar los 1000 caracteres."
+                }
+           
+        },
+            errorPlacement: function (error, element) {
+                if (element.attr("name") == "img_item") {
+                    error.insertAfter("#dropzone-container");
+                } else {
+                    error.insertAfter(element);
+                }
+            },
+            submitHandler: function (form) {
+                const fileInput = $('#dropzone-file')[0];
 
-            // Si hay cropper, procesar imagen antes de enviar
-            if (cropper) {
-                e.preventDefault();
-                console.log('Procesando imagen con cropper...');
-                
-                cropper.getCroppedCanvas().toBlob(function (blob) {
-                    // Crear un nuevo archivo con el blob recortado
-                    const croppedFile = new File([blob], 'cropped.png', { type: 'image/png' });
-                    
-                    // Reemplazar el archivo en el input
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(croppedFile);
-                    fileInput.files = dataTransfer.files;
-                    
-                    console.log('Archivo procesado:', fileInput.files[0]);
-                    
-                    // Mostrar indicador de envío
-                    Swal.fire({
-                        title: 'Guardando item...',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                    
-                    // Enviar el formulario
-                    $('#add-item-form')[0].submit();
-                }, 'image/png');
-            } else {
-                console.log('Enviando formulario sin cropper...');
-                // Si no hay cropper, mostrar indicador de envío
+                // Mostrar indicador de envío
                 Swal.fire({
                     title: 'Guardando item...',
                     allowOutsideClick: false,
@@ -248,9 +275,21 @@
                         Swal.showLoading();
                     }
                 });
+
+                // Si hay cropper, procesar imagen antes de enviar
+                if (cropper && fileInput.files.length > 0) {
+                    cropper.getCroppedCanvas().toBlob(function (blob) {
+                        const croppedFile = new File([blob], 'cropped.png', { type: 'image/png' });
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(croppedFile);
+                        fileInput.files = dataTransfer.files;
+                        form.submit();
+                    }, 'image/png');
+                } else {
+                    // Si no hay cropper, enviar directamente
+                    form.submit();
+                }
             }
         });
-
     });
-
 </script>

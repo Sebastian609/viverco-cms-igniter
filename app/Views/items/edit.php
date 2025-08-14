@@ -143,14 +143,81 @@
         </div>
     </div>
 
-
-
+    <!-- Agrega jQuery Validate antes de tu script -->
+ 
     <script>
         $(document).ready(function () {
 
+            // ---- VALIDACIÓN ----
+            $("#add-item-form").validate({
+                ignore: [], // Para validar también campos ocultos si es necesario
+                rules: {
+                    title_item: {
+                        required: true,
+                        minlength: 2,
+                        maxlength: 255
+                    },
+                    copy_item: {
+                        required: true,
+                        minlength: 3,
+                        maxlength: 1000
+                    },
+                    button: {
+                        required: function () {
+                            return $("#item-showButton").is(":checked");
+                        },
+                        minlength: 2
+                    },
+                    redirect: {
+                        required: function () {
+                            return $("#item-showButton").is(":checked");
+                        },
+                        url: true
+                    },
+                    img_item: {
+                        extension: "jpg|jpeg|png|gif",
+                        filesize: 5 * 1024 * 1024 // 5 MB
+                    }
+                },
+                messages: {
+                    title_item: {
+                        required: "El título es obligatorio",
+                        minlength: "Debe tener al menos 2 caracteres",
+                        maxlength: "No puede superar los 255 caracteres"
+                    },
+                    copy_item: {
+                        required: "El copy es obligatorio",
+                        minlength: "Debe tener al menos 3 caracteres",
+                        maxlength: "No puede superar los 1000 caracteres"
+                    },
+                    button: {
+                        required: "El texto del botón es obligatorio cuando está habilitado",
+                        minlength: "Debe tener al menos 2 caracteres"
+                    },
+                    redirect: {
+                        required: "La URL es obligatoria cuando el botón está habilitado",
+                        url: "Debe ser una URL válida (ej: https://...)"
+                    },
+                    img_item: {
+                        extension: "Solo se permiten imágenes JPG, PNG o GIF",
+                        filesize: "La imagen no puede superar los 5MB"
+                    }
+                },
+                errorPlacement: function (error, element) {
+                    error.addClass("text-red-500 text-sm mt-1 block");
+                    error.insertAfter(element);
+                }
+            });
+
+            // ---- FUNCIÓN PARA VALIDAR PESO DEL ARCHIVO ----
+            $.validator.addMethod('filesize', function (value, element, param) {
+                if (element.files.length === 0) return true; // No valida si no hay archivo
+                return element.files[0].size <= param;
+            }, 'El archivo es demasiado grande.');
+
+            // --- Resto de tu código existente ---
             let cropper = null;
             const existingImg = "<?= esc($item['img']) ?>";
-
             const fileInput = $("#dropzone-file");
             const imgInput = $("#dropzone-container");
             const cropperContainer = $("#cropper-container");
@@ -159,18 +226,13 @@
             const btnCancel = $("#btn-cancel-crop");
             const previewContainer = $("#preview-container");
 
-            // --- Mostrar imagen existente si hay ---
             previewContainer.html('');
             if (existingImg.trim() !== "") {
-
-
-                // Mostrar la imagen actual
                 const imgPreview = $('<img>', {
                     src: existingImg.startsWith('/') ? existingImg : '/' + existingImg,
                     class: 'w-full h-64 object-contain mt-2',
                     alt: 'Imagen actual'
                 });
-
                 previewContainer.append(imgPreview);
             } else {
                 imgInput.fadeIn();
@@ -189,7 +251,6 @@
             fileInput.on('change', function (e) {
                 const file = e.target.files[0];
                 if (!file) return;
-
                 destroyCropper();
                 const reader = new FileReader();
                 reader.onload = function (ev) {
@@ -213,14 +274,11 @@
                 if (!cropper) return;
                 const canvas = cropper.getCroppedCanvas();
                 if (!canvas) return;
-
                 canvas.toBlob(function (blob) {
                     const croppedFile = new File([blob], 'cropped.jpg', { type: 'image/jpeg' });
                     const dt = new DataTransfer();
                     dt.items.add(croppedFile);
                     fileInput[0].files = dt.files;
-
-                    // Limpiar preview y mostrar nueva imagen
                     previewContainer.html('');
                     const url = URL.createObjectURL(blob);
                     $('<img>', {
@@ -228,23 +286,16 @@
                         class: 'w-full h-64 object-contain mt-2',
                         alt: 'Imagen recortada'
                     }).appendTo(previewContainer);
-
-                    // Ocultar cropper, mostrar dropzone
                     cropperContainer.fadeOut(100, () => imgInput.fadeIn(100));
-
-                    // Solo destruir cropper, no resetear dropzone
                     destroyCropper();
                 }, 'image/jpeg', 0.9);
             });
 
-
             btnCancel.click(resetState);
-
             $("#aspectRatio").on('change', function () {
                 if (cropper) cropper.setAspectRatio(parseFloat($(this).val()));
             });
 
-            // --- Checkbox botón ---
             const checkBox = $("#item-showButton");
             const redirectInput = $("#redirect-container");
             const textButtonInput = $("#button-text-container");
@@ -267,4 +318,5 @@
 
         });
     </script>
+
     <?= $this->endSection() ?>
