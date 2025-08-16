@@ -48,6 +48,7 @@ $routes->group('api', [
     'filter' => 'cors'
 ], function ($routes) {
     $routes->resource('sliders', ['controller' => 'SliderController']);
+    $routes->resource('posts', ['controller' => 'PostController']);
 });
 
 
