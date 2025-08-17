@@ -4,8 +4,6 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\CompanyContactModel;
-use CodeIgniter\HTTP\ResponseInterface;
-
 class CompanyContactController extends BaseController
 {
     protected $companyConctactModel;

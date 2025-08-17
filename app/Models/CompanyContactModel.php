@@ -21,6 +21,10 @@ class CompanyContactModel extends Model
         'maps_url',
         'address',
         'status',
+        'start_day',
+        'end_day',
+        'start_time',
+        'end_time'
     ];
 
     // Fechas automáticas
@@ -36,6 +40,8 @@ class CompanyContactModel extends Model
         'phone'   => 'permit_empty|max_length[20]',
         'address' => 'required|string|max_length[1000]',
         'status'  => 'in_list[active,inactive]',
+        'start_day'  => 'in_list[lunes,martes,miércoles,jueves,viernes,sábado,domingo]',
+        'end_day'  => 'in_list[lunes,martes,miércoles,jueves,viernes,sábado,domingo]',
     ];
 
     protected $validationMessages = [
