@@ -29,6 +29,24 @@ class CreateCompanyContactsTable extends Migration
                 'type' => 'VARCHAR',
                 'constraint' => 1000
             ],
+
+            'start_day' => [
+                'type' => 'VARCHAR',
+                'constraint' => 10
+            ],
+            'end_day' => [
+                'type' => 'VARCHAR',
+                'constraint' => 10
+            ],
+            'start_time' => [
+                'type' => 'TIME',
+                'null' => false
+            ],
+            'end_time' => [
+                'type' => 'TIME',
+                'null' => false
+            ],
+
             'status' => [
                 'type' => 'VARCHAR',
                 'constraint' => 40,
