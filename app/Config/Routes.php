@@ -41,7 +41,8 @@ $routes->get('/item/delete/(:num)', 'ItemController::delete/$1');
 
 $routes->post('/collection/updateKey', 'CollectionController::updateKey');
 
-
+$routes->get('/contact', 'CompanyContactController::index');
+$routes->post('/contact/update', 'CompanyContactController::update');
 
 $routes->group('api', [
     'namespace' => 'App\Controllers\Api',
