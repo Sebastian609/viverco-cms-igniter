@@ -3,7 +3,7 @@
 
 <div class="">
     <div class="container mx-auto px-4">
-        <h1 class="text-3xl text-gray-800 mb-6 text-left">Crear Nuevo Slider</h1>
+        <h1 class="text-3xl text-gray-800 mb-6 text-left">Crear Nuevo Post</h1>
 
         <form x-data="sliderForm()" class="bg-white p-8 rounded-xl shadow-lg grid grid-cols-1 md:grid-cols-2 gap-6"
             action="/slider/store" method="post" enctype="multipart/form-data">

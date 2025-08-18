@@ -44,12 +44,20 @@ $routes->post('/collection/updateKey', 'CollectionController::updateKey');
 $routes->get('/contact', 'CompanyContactController::index');
 $routes->post('/contact/update', 'CompanyContactController::update');
 
+$routes->get('/footer', 'FooterController::index');
+$routes->post('/footer/update', 'FooterController::update');
+
+$routes->get('/message', 'MessageController::index');
+$routes->post('/message/store', 'MessageController::store');
+
+
 $routes->group('api', [
     'namespace' => 'App\Controllers\Api',
     'filter' => 'cors'
 ], function ($routes) {
     $routes->resource('sliders', ['controller' => 'SliderController']);
     $routes->resource('posts', ['controller' => 'PostController']);
+    $routes->resource('contact', ['controller' => 'CompanyContactController']);
 });
 
 

@@ -55,8 +55,27 @@
         </a>
       </li>
     </ul>
+    <ul class="space-y-1 text-gray-300 font-medium">
+      <li class="aspect-square">
+        <a href="/message"
+          class="flex items-center justify-center p-4 rounded-lg hover:bg-gray-100/30 transition-colors duration-200 hover:text-indigo-700">
+          <i class="fa-solid fa-message w-5 h-5 text-xl" 
+            :class="{'text-indigo-700': url === 'message', 'text-gray-500': url !== 'message'}"></i>
+        </a>
+      </li>
+    </ul>
+    <ul class="space-y-1 text-gray-300 font-medium">
+      <li class="aspect-square">
+        <a href="/footer"
+          class="flex items-center justify-center p-4 rounded-lg hover:bg-gray-100/30 transition-colors duration-200 hover:text-indigo-700">
+          <i class="fa-solid fa-circle-info w-5 h-5 text-xl" 
+            :class="{'text-indigo-700': url === 'footer', 'text-gray-500': url !== 'footer'}"></i>
+        </a>
+      </li>
+    </ul>
   </nav>
 </aside>
+
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 <script>
