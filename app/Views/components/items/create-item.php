@@ -1,4 +1,4 @@
-<div id="add">
+<div>
     <form method="POST" action="/item/create/<?= esc($collection['id']) ?>" class="bg-white"
         enctype="multipart/form-data" id="add-item-form">
         <?= csrf_field() ?>
@@ -155,7 +155,6 @@
             $('#cropper-container').hide();
             $('#dropzone-container').show();
             $('#dropzone-file').val('');
-            // Limpiar el error de validación del dropzone si existe
             $('#dropzone-file-error').remove();
         });
 
@@ -185,7 +184,6 @@
             $('#cropper-container').hide();
             $('#dropzone-container').show();
             if (cropper) { cropper.destroy(); cropper = null; }
-            // Opcional: resetear la validación
             $('#add-item-form').validate().resetForm();
         });
 
@@ -193,70 +191,22 @@
             return value.trim().length > 0;
         }, "Este campo no puede estar vacío o solo con espacios.");
 
-        // Inicialización de jQuery Validate
+        // jQuery Validate + AJAX
         $("#add-item-form").validate({
             rules: {
-                title_item: {
-                    required: true,
-                    noSpace: true,
-                    minlength: 5,
-                    maxlength: 1000
-                },
-                img_item: {
-                    required: true,
-                    noSpace: true,
-                    minlength: 5,
-                    maxlength: 1000
-                },
-                button_item: {
-                    required: '#item-showButton:checked',
-                    noSpace: true,
-                    minlength: 5,
-                    maxlength: 1000
-                },
-                redirect_item: {
-                    required: '#item-showButton:checked',
-                    url: true,
-                    noSpace: true,
-                    minlength: 5,
-                    maxlength: 1000
-                },
-                copy_item: {
-                    required: true,
-                    noSpace: true,
-                    minlength: 5,
-                    maxlength: 1000
-                }
+                title_item: { required: true, noSpace: true, minlength: 5, maxlength: 1000 },
+                img_item: { required: true },
+                button_item: { required: '#item-showButton:checked', noSpace: true, minlength: 5, maxlength: 1000 },
+                redirect_item: { required: '#item-showButton:checked', url: true, noSpace: true, minlength: 5, maxlength: 1000 },
+                copy_item: { required: true, noSpace: true, minlength: 5, maxlength: 1000 }
             },
             messages: {
-                title_item: {
-                    required: "El título es obligatorio.",
-                    minlength: "Debe tener al menos 5 caracteres.",
-                    maxlength: "No puede superar los 1000 caracteres."
-                },
-                img_item: {
-                    required: "Por favor, selecciona una imagen.",
-                    minlength: "Debe tener al menos 5 caracteres.",
-                    maxlength: "No puede superar los 1000 caracteres."
-                },
-                button_item: {
-                    required: "El texto del botón es obligatorio.",
-                    minlength: "Debe tener al menos 5 caracteres.",
-                    maxlength: "No puede superar los 1000 caracteres."
-                },
-                redirect_item: {
-                    required: "La URL de redirección es obligatoria.",
-                    url: "Por favor, introduce una URL válida (ej. https://ejemplo.com).",
-                    minlength: "Debe tener al menos 5 caracteres.",
-                    maxlength: "No puede superar los 1000 caracteres."
-                },
-                copy_item: {
-                    required: "El texto de copia es obligatorio.",
-                    minlength: "Debe tener al menos 5 caracteres.",
-                    maxlength: "No puede superar los 1000 caracteres."
-                }
-           
-        },
+                title_item: { required: "El título es obligatorio." },
+                img_item: { required: "Por favor, selecciona una imagen." },
+                button_item: { required: "El texto del botón es obligatorio." },
+                redirect_item: { required: "La URL de redirección es obligatoria.", url: "Introduce una URL válida." },
+                copy_item: { required: "El texto de copia es obligatorio." }
+            },
             errorPlacement: function (error, element) {
                 if (element.attr("name") == "img_item") {
                     error.insertAfter("#dropzone-container");
@@ -267,27 +217,54 @@
             submitHandler: function (form) {
                 const fileInput = $('#dropzone-file')[0];
 
-                // Mostrar indicador de envío
                 Swal.fire({
                     title: 'Guardando item...',
                     allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
+                    didOpen: () => Swal.showLoading()
                 });
 
-                // Si hay cropper, procesar imagen antes de enviar
+                function enviarAjax(fileInput) {
+                    const formData = new FormData(form);
+                    formData.set("img_item", fileInput.files[0]); // reemplaza el input de imagen con la recortada
+
+                    $.ajax({
+                        url: $(form).attr("action"),
+                        type: "POST",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Guardado correctamente",
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            // Opcional: resetear formulario
+                            $('#btn-cancel').click();
+                            window.location.reload();
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error al guardar",
+                                text: xhr.responseText || "Ocurrió un error inesperado"
+                            });
+                        }
+                    });
+                }
+
+                // Procesar imagen con cropper si existe
                 if (cropper && fileInput.files.length > 0) {
                     cropper.getCroppedCanvas().toBlob(function (blob) {
                         const croppedFile = new File([blob], 'cropped.png', { type: 'image/png' });
                         const dataTransfer = new DataTransfer();
                         dataTransfer.items.add(croppedFile);
                         fileInput.files = dataTransfer.files;
-                        form.submit();
+                        enviarAjax(fileInput);
                     }, 'image/png');
                 } else {
-                    // Si no hay cropper, enviar directamente
-                    form.submit();
+                    enviarAjax(fileInput);
                 }
             }
         });

@@ -171,7 +171,7 @@ class ItemController extends BaseController
             // Imagen (opcional)
             $file = $this->request->getFile('img_item');
             if ($file && $file->isValid() && !$file->hasMoved()) {
-                // Validar solo si hay archivo
+                // Validar imagen
                 $validated = $this->validate([
                     'img_item' => [
                         'mime_in[img_item,image/jpg,image/jpeg,image/png]',
@@ -180,8 +180,11 @@ class ItemController extends BaseController
                 ]);
 
                 if (!$validated) {
-                    log_message('error', 'Validación de imagen falló: ' . json_encode($this->validator->getErrors()));
-                    return redirect()->back()->withInput()->with('error', 'Imagen inválida o muy grande.');
+                    return $this->response->setJSON([
+                        'status' => 'error',
+                        'message' => 'Imagen inválida o demasiado grande',
+                        'errors' => $this->validator->getErrors()
+                    ])->setStatusCode(400);
                 }
 
                 // Crear carpeta si no existe
@@ -190,11 +193,13 @@ class ItemController extends BaseController
                     mkdir($uploadDir, 0755, true);
                 }
 
-                // Mover imagen
+                // Guardar imagen
                 $newName = $file->getRandomName();
                 if (!$file->move($uploadDir, $newName)) {
-                    log_message('error', 'No se pudo mover el archivo: ' . $file->getError());
-                    return redirect()->back()->withInput()->with('error', 'Error al subir la imagen.');
+                    return $this->response->setJSON([
+                        'status' => 'error',
+                        'message' => 'Error al mover el archivo de imagen'
+                    ])->setStatusCode(500);
                 }
 
                 $imgPath = 'uploads/items/' . $newName;
@@ -207,7 +212,7 @@ class ItemController extends BaseController
                 'copy' => $this->request->getPost('copy_item'),
                 'orden' => $order,
                 'status' => 'active',
-                'img' => $imgPath, // Puede ser null
+                'img' => $imgPath,
                 'button' => $button,
                 'redirect' => $redirect
             ];
@@ -217,27 +222,36 @@ class ItemController extends BaseController
                 if ($imgPath && file_exists(FCPATH . $imgPath)) {
                     unlink(FCPATH . $imgPath);
                 }
-                return redirect()->back()->withInput()->with('error', 'Error al crear el item en la base de datos.');
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'No se pudo crear el item en la base de datos',
+                    'errors' => $this->itemModel->errors()
+                ])->setStatusCode(500);
             }
 
-            // Redirigir al post padre
+            // Obtener post padre
             $post = $this->collectionModel
                 ->select('post_id')
                 ->where('id', $collectionId)
                 ->first();
 
-            if (!$post) {
-                throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Post not found.");
-            }
-
-            return redirect()->to("/post/edit/" . $post['post_id'])
-                ->with('success', 'Item creado correctamente.');
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Item creado correctamente',
+                'post_id' => $post['post_id'] ?? null,
+                'item_id' => $this->itemModel->getInsertID(),
+                'img' => $imgPath
+            ]);
         } catch (\Exception $e) {
             log_message('error', 'Error general al crear item: ' . $e->getMessage());
             if (isset($imgPath) && $imgPath && file_exists(FCPATH . $imgPath)) {
                 unlink(FCPATH . $imgPath);
             }
-            return redirect()->back()->withInput()->with('error', 'Error inesperado: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Error inesperado: ' . $e->getMessage()
+            ])->setStatusCode(500);
         }
     }
+
 }

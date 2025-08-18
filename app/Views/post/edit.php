@@ -21,6 +21,7 @@
                         <option value="services" <?= ($collection['key'] === 'services') ? 'selected' : '' ?>>Servicios
                         </option>
                         <option value="about" <?= ($collection['key'] === 'about') ? 'selected' : '' ?>>Nosotros</option>
+                        <option value="responsability" <?= ($collection['key'] === 'responsability') ? 'selected' : '' ?>>Responsabilidad Social</option>
                     </select>
 
                 </div>

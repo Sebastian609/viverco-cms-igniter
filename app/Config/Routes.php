@@ -48,7 +48,15 @@ $routes->get('/footer', 'FooterController::index');
 $routes->post('/footer/update', 'FooterController::update');
 
 $routes->get('/message', 'MessageController::index');
-$routes->post('/message/store', 'MessageController::store');
+
+// Antes o después de tu grupo 'api'
+$routes->options('api/(:any)', function($any) {
+    $response = service('response');
+    $response->setHeader('Access-Control-Allow-Origin', '*');
+    $response->setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    $response->setHeader('Access-Control-Allow-Headers', '*');
+    return $response->setStatusCode(200);
+});
 
 
 $routes->group('api', [
@@ -59,6 +67,7 @@ $routes->group('api', [
     $routes->resource('posts', ['controller' => 'PostController']);
     $routes->resource('contact', ['controller' => 'CompanyContactController']);
     $routes->resource('footer', ['controller' => 'FooterController']);
+    $routes->resource('message', ['controller' => 'MessageController']);
 });
 
 
