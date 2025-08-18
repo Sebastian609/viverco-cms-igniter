@@ -40,8 +40,8 @@ class FooterModel extends Model
         'instagram_link' => 'permit_empty|valid_url',
         'tiktok_link'    => 'permit_empty|valid_url',
         'linkedin_link'  => 'permit_empty|valid_url',
-        'terms'          => 'required|valid_url',
-        'privacy'        => 'required|valid_url',
+        'terms'          => 'required',
+        'privacy'        => 'required',
     ];
 
     protected $validationMessages = [

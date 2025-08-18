@@ -28,7 +28,7 @@ class FooterController extends BaseController
 
             if (is_null($first)) {
                 // Insertar si no existe
-                $this->footerModel->insert(row: $data);
+                $this->footerModel->insert($data);
 
                 return $this->response->setJSON([
                     'status' => 'success',
