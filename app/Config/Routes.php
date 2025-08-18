@@ -58,6 +58,7 @@ $routes->group('api', [
     $routes->resource('sliders', ['controller' => 'SliderController']);
     $routes->resource('posts', ['controller' => 'PostController']);
     $routes->resource('contact', ['controller' => 'CompanyContactController']);
+    $routes->resource('footer', ['controller' => 'FooterController']);
 });
 
 
