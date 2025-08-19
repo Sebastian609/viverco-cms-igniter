@@ -12,7 +12,7 @@ class Cors implements FilterInterface
         $response = service('response');
 
         // Cabeceras CORS para cualquier origen
-        $response->setHeader('Access-Control-Allow-Origin', 'http://localhost:5175'); // tu React
+        $response->setHeader('Access-Control-Allow-Origin', '*'); // tu React
         $response->setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
         $response->setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
