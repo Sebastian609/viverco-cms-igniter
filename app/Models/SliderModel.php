@@ -25,6 +25,14 @@ class SliderModel extends Model
         'created_at',
         'updated_at',
         'deleted_at',
+        // NUEVOS CAMPOS DE PERSONALIZACIÓN DE CTA (sin prefijo)
+        'title_color',
+        'content_color',
+        'background_color',
+        'button_text_color',
+        'button_color',
+        'border_color',
+        'position',
     ];
 
     protected $useTimestamps = true;

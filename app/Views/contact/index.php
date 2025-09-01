@@ -24,10 +24,28 @@
                         class="w-full border rounded-md border-gray-300 p-3">
                 </div>
 
+                   <div >
+                <label for="img" class="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
+                <input type="file" id="img_input" accept="image/*" class="w-full border border-gray-300 p-3 rounded-lg bg-white file:mr-4 file:py-2 file:px-4
+               file:rounded-lg file:border-0 file:text-sm file:font-semibold
+               file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition duration-200">
+
+                <!-- Imagen recortada -->
+                <div class="mt-4 space-y-3">
+                    <img id="cropper_preview" :src="existingImage"
+                     src="<?= isset($contact['img']) ? base_url($contact['img']) : '' ?>"
+                        class="max-h-64  w-auto mx-auto border border-gray-200 rounded-lg shadow-sm object-contain">
+          
+                </div>
+
+                <!-- Imagen en base64 -->
+                <input type="hidden" name="img" id="cropped_image_data">
+            </div>
+
                 <!-- Dirección -->
-                <div class="md:col-span-2">
+                <div >
                     <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-                    <textarea name="address" id="address" rows="3" placeholder="Av. Ejemplo 123, Lima, Perú"
+                    <textarea name="address" id="address" rows="10" placeholder="Av. Ejemplo 123, Lima, Perú"
                         class="w-full border rounded-md border-gray-300 p-3"><?= old('address', $contact['address'] ?? '') ?></textarea>
                 </div>
 
@@ -141,5 +159,46 @@
             });
         });
     </script>
+
+    <script>
+    let cropper;
+    const input = document.getElementById('img_input');
+    const preview = document.getElementById('cropper_preview');
+    const hiddenInput = document.getElementById('cropped_image_data');
+
+    input.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            preview.src = e.target.result;
+
+            if (cropper) cropper.destroy();
+
+            cropper = new Cropper(preview, {
+                aspectRatio: 1200 / 600,
+                viewMode: 1,
+                autoCropArea: 1,
+                responsive: true,
+                scalable: false,
+                zoomable: true,
+                movable: true,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Convertir recorte antes de enviar
+    document.querySelector('form').addEventListener('submit', function (e) {
+        if (cropper) {
+            const canvas = cropper.getCroppedCanvas({
+                width: 1200,
+                height: 600,
+            });
+            hiddenInput.value = canvas.toDataURL('image/jpeg');
+        }
+    });
+</script>
 
     <?= $this->endSection() ?>

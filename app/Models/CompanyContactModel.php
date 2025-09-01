@@ -17,6 +17,7 @@ class CompanyContactModel extends Model
     // Campos que sí se pueden insertar/actualizar
     protected $allowedFields    = [
         'email',
+        'img',
         'phone',
         'maps_url',
         'address',

@@ -80,6 +80,80 @@
                     class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300">
             </div>
 
+            <!-- CTA Personalización -->
+            <div class="col-span-1 md:col-span-2 border-t border-gray-300 pt-4 mt-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Personalización de CTA</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Color del título -->
+                    <div>
+                        <label for="title_color" class="block text-sm font-medium text-gray-700 mb-1">Color del
+                            título</label>
+                        <input type="color" name="title_color" id="title_color"
+                            value="<?= esc($slider['title_color'] ?? '#000000') ?>"
+                            class="w-full h-10 p-1 rounded-lg border border-gray-300">
+                    </div>
+
+                    <!-- Color del contenido -->
+                    <div>
+                        <label for="content_color" class="block text-sm font-medium text-gray-700 mb-1">Color del
+                            contenido</label>
+                        <input type="color" name="content_color" id="content_color"
+                            value="<?= esc($slider['content_color'] ?? '#000000') ?>"
+                            class="w-full h-10 p-1 rounded-lg border border-gray-300">
+                    </div>
+
+                    <!-- Color de fondo -->
+                    <div>
+                        <label for="background_color" class="block text-sm font-medium text-gray-700 mb-1">Color de
+                            fondo</label>
+                        <input type="color" name="background_color" id="background_color"
+                            value="<?= esc($slider['background_color'] ?? '#ffffff') ?>"
+                            class="w-full h-10 p-1 rounded-lg border border-gray-300">
+                    </div>
+
+                    <!-- Color del texto del botón -->
+                    <div>
+                        <label for="button_text_color" class="block text-sm font-medium text-gray-700 mb-1">Color del
+                            texto del botón</label>
+                        <input type="color" name="button_text_color" id="button_text_color"
+                            value="<?= esc($slider['button_text_color'] ?? '#ffffff') ?>"
+                            class="w-full h-10 p-1 rounded-lg border border-gray-300">
+                    </div>
+
+                    <!-- Color del botón -->
+                    <div>
+                        <label for="button_color" class="block text-sm font-medium text-gray-700 mb-1">Color del
+                            botón</label>
+                        <input type="color" name="button_color" id="button_color"
+                            value="<?= esc($slider['button_color'] ?? '#10b981') ?>"
+                            class="w-full h-10 p-1 rounded-lg border border-gray-300">
+                    </div>
+
+                    <!-- Color del borde del cuadro -->
+                    <div>
+                        <label for="border_color" class="block text-sm font-medium text-gray-700 mb-1">Color del borde
+                            del cuadro</label>
+                        <input type="color" name="border_color" id="border_color"
+                            value="<?= esc($slider['border_color'] ?? '#d1d5db') ?>"
+                            class="w-full h-10 p-1 rounded-lg border border-gray-300">
+                    </div>
+
+                    <!-- Posición -->
+                    <div class="md:col-span-3">
+                        <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Ubicación</label>
+                        <select name="position" id="position"
+                            class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="left" <?= ($slider['position'] ?? '') === 'left' ? 'selected' : '' ?>>Izquierda
+                            </option>
+                            <option value="right" <?= ($slider['position'] ?? '') === 'right' ? 'selected' : '' ?>>Derecha
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
             <div class="col-span-1 md:col-span-2">
                 <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Estado del slider</label>
                 <select id="status" name="status"
